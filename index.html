@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Macaron Shop</title>
+    <style>
+        /* --- LAYOUT & DESIGN --- */
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #fff0f5; }
+        h1 { color: #880e4f; text-align: center; }
+        
+        /* Product Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 20px; }
+        .product-card { background: white; border: 1px solid #f8bbd0; padding: 15px; text-align: center; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 120px; background-color: #fce4ec; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        
+        /* Buttons */
+        .btn { background: #e91e63; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 20px; margin-top: 5px; font-weight: bold; transition: background 0.2s; }
+        .btn:hover { background: #c2185b; }
+        .btn-remove { background: #bdbdbd; font-size: 0.8em; padding: 5px 10px; border-radius: 5px; margin-left: 10px; }
+        
+        /* Shopping Bag */
+        #cart-summary { margin-top: 40px; padding: 20px; background: white; border-radius: 12px; border: 1px solid #f8bbd0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        #cart-list { list-style: none; padding: 0; }
+        #cart-list li { padding: 8px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* --- MODAL (POPUP) STYLES --- */
+        .modal { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.6); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; /* Ensures it sits on top */
+        }
+        
+        .modal-content { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px; 
+            text-align: center; 
+            max-width: 320px; 
+            width: 90%; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+        }
+        
+        .qr-placeholder { 
+            width: 200px; 
+            height: 200px; 
+            background: #eee; 
+            margin: 15px auto; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #888;
+        }
+
+        /* --- IMPORTANT: This controls visibility --- */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <h1>🍬 Premium Macarons</h1>
+
+    <div class="product-grid" id="product-container">
+        </div>
+
+    <div id="cart-summary">
+        <h3>🛍️ Your Shopping Bag</h3>
+        <ul id="cart-list">
+            <li style="color: #999;">Your bag is empty...</li>
+        </ul>
+        <p style="font-size: 1.2em; text-align: right;">Total: <strong><span id="cart-total">0</span> THB</strong></p>
+        <div style="text-align: right;">
+            <button class="btn" onclick="showCheckout()">Proceed to Payment</button>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 style="color: #e91e63;">Scan to Pay</h2>
+            <p>Total: <strong><span id="pay-amount">0</span> THB</strong></p>
+            
+            <div class="qr-placeholder">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ExamplePayment" alt="QR Code" style="width:100%; height:100%;">
+            </div>
+            
+            <p style="font-size: 0.9em; color: #666;">Please transfer and enter your name:</p>
+            <input type="text" id="customer-name" placeholder="Your Name" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px;">
+            
+            <button class="btn" onclick="submitOrder()">Confirm Payment</button>
+            <br><br>
+            <button class="btn-remove" style="background: white; color: #888; border: 1px solid #ddd;" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const products = [
+            { 
+                id: 1, 
+                name: "Earl Grey Honey", 
+                price: 45,
+                // If the image is on your computer in an 'images' folder:
+                image: "EarlGreyHoney.jpg" 
+                // OR if you have a link from the internet:
+                // image: "https://example.com/rose-macaron.jpg"
+            },
+            { 
+                id: 2, 
+                name: "Dark Chocolate", 
+                price: 45, 
+                image: "images/choco.jpg" 
+            },
+            { 
+                id: 3, 
+                name: "Matcha Green Tea", 
+                price: 50, 
+                image: "images/matcha.jpg" 
+            },
+            { 
+                id: 4, 
+                name: "Salted Caramel", 
+                price: 50, 
+                image: "images/caramel.jpg" 
+            }
+        ];
+
+        let cart = [];
+
+        // --- INIT ---
+        const container = document.getElementById('product-container');
+        
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            // WE CHANGED THIS PART:
+            // We now use an <img> tag pointing to p.image
+            card.innerHTML = `
+                <img src="${p.image}" class="product-img" alt="${p.name}">
+                <h3>${p.name}</h3>
+                <p style="color: #e91e63; font-weight: bold;">${p.price} THB</p>
+                <button class="btn" onclick="addToCart(${p.id})">Add to Bag</button>
+            `;
+            container.appendChild(card);
+        });
+
+        // --- LOGIC ---
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            cart.push(product);
+            renderCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cart-list');
+            const totalSpan = document.getElementById('cart-total');
+            list.innerHTML = '';
+            
+            if (cart.length === 0) {
+                list.innerHTML = '<li style="color: #999;">Your bag is empty...</li>';
+                totalSpan.innerText = '0';
+                return;
+            }
+
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>${item.price} THB <button class="btn-remove" onclick="removeFromCart(${index})">x</button></span>
+                `;
+                list.appendChild(li);
+            });
+            totalSpan.innerText = total;
+        }
+
+        function showCheckout() {
+            if (cart.length === 0) { alert("Please add items to your bag first!"); return; }
+            document.getElementById('pay-amount').innerText = document.getElementById('cart-total').innerText;
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        // --- SUBMIT TO GOOGLE SHEET ---
+        function submitOrder() {
+            const nameField = document.getElementById('customer-name');
+            const name = nameField.value;
+            
+            if (!name) { alert("Please enter your name to verify payment."); return; }
+
+            const submitBtn = document.querySelector('#checkout-modal .btn');
+            submitBtn.innerText = "Sending...";
+            submitBtn.disabled = true;
+
+            const orderData = {
+                customer: name,
+                items: cart.map(i => i.name).join(", "),
+                total: document.getElementById('cart-total').innerText
+            };
+
+            // YOUR SPECIFIC URL IS HERE:
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwsy6TtiRrc88oT4_S6WB_2ONb61tmIOxkgge54S9tpj4IzVJoBLImW8BXRST2wycBRJQ/exec'; 
+
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // Standard setting for Google Apps Script from external sites
+                body: JSON.stringify(orderData),
+                headers: { 'Content-Type': 'application/json' }
+            }).then(response => {
+                // Because of 'no-cors', we assume success if the request finished
+                alert("Thank you, " + name + "! We received your order.");
+                
+                // Reset everything
+                cart = [];
+                renderCart();
+                nameField.value = "";
+                closeModal();
+                submitBtn.innerText = "Confirm Payment";
+                submitBtn.disabled = false;
+                
+            }).catch(error => {
+                console.error('Error!', error.message);
+                alert("There was an error sending the order. Please try again.");
+                submitBtn.innerText = "Confirm Payment";
+                submitBtn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
