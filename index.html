@@ -16,7 +16,7 @@
             padding: 20px; 
             background-color: #fff0f5; /* Light pink background */
             color: #333; 
-            padding-bottom: 80px; /* Space for mobile bar */
+            padding-bottom: 100px; /* Space for mobile bar */
         }
         
         h1 { color: #880e4f; text-align: center; font-size: 2.2em; margin-bottom: 5px; }
@@ -43,7 +43,7 @@
         .product-card { 
             background: white; 
             border: 1px solid #f8bbd0; 
-            padding: 12px; 
+            padding: 10px; 
             text-align: center; 
             border-radius: 12px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
@@ -63,16 +63,16 @@
         }
         
         /* Typography */
-        .name-en { font-weight: bold; font-size: 0.9em; color: #333; margin: 5px 0 0 0; }
-        .name-th { color: #888; font-size: 0.85em; margin-bottom: 8px; }
+        .name-en { font-weight: bold; font-size: 0.9em; color: #333; margin: 5px 0 0 0; line-height: 1.2; }
+        .name-th { color: #888; font-size: 0.8em; margin-bottom: 5px; line-height: 1.2; }
         .price-tag { color: #e91e63; font-weight: bold; font-size: 1em; }
         
         /* Buttons */
         .btn { 
             background: #e91e63; color: white; border: none; 
-            padding: 8px 15px; cursor: pointer; border-radius: 20px; 
+            padding: 6px 10px; cursor: pointer; border-radius: 20px; 
             margin-top: 5px; font-weight: bold; transition: background 0.2s; 
-            width: 100%; font-size: 0.9em; 
+            width: 100%; font-size: 0.85em; 
         }
         .btn:hover { background: #c2185b; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
@@ -99,7 +99,11 @@
         #cart-list { list-style: none; padding: 0; max-height: 400px; overflow-y: auto; }
         #cart-list li { padding: 8px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
         
-        .promo-text { color: #2e7d32; font-size: 0.9em; font-weight: bold; margin-top: 5px; text-align: right; background: #e8f5e9; padding: 5px; border-radius: 4px; display: none; }
+        /* Promo Text Green Box */
+        .promo-text { 
+            color: #2e7d32; font-size: 0.9em; font-weight: bold; margin-top: 5px; 
+            text-align: center; background: #e8f5e9; padding: 8px; border-radius: 8px; display: none; 
+        }
 
         /* --- 3. MOBILE APP MODE --- */
         #mobile-bar {
@@ -109,32 +113,56 @@
             width: 100%;
             background: white;
             border-top: 1px solid #e91e63;
-            padding: 15px 20px;
+            padding: 10px 15px;
             box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
             display: none; /* Hidden on desktop */
             justify-content: space-between;
             align-items: center;
             z-index: 900;
             box-sizing: border-box;
+            height: 70px;
         }
 
-        /* Responsive Rules */
+        /* --- RESPONSIVE RULES (MOBILE) --- */
         @media (max-width: 768px) {
+            body { padding: 10px; padding-bottom: 90px; }
+            h1 { font-size: 1.8em; }
+
             .main-container {
                 flex-direction: column; /* Stack layout on phone */
+                gap: 20px;
             }
+
+            /* --- FORCE 3 COLUMNS ON MOBILE --- */
+            .product-grid { 
+                grid-template-columns: repeat(3, 1fr); /* 3 Items per row */
+                gap: 8px; /* Tighter gap */
+            }
+
+            .product-card {
+                padding: 5px; /* Less padding to fit */
+                border-radius: 8px;
+            }
+
+            .product-img {
+                width: 100%; /* Fill the small card */
+                height: auto; /* Maintain aspect ratio */
+                aspect-ratio: 4/3; /* Keeps it rectangular */
+            }
+
+            .name-en { font-size: 0.75em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .name-th { font-size: 0.7em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .btn { font-size: 0.75em; padding: 4px 2px; }
+
+            /* --- HIDE DESKTOP CART --- */
             #cart-summary {
-                width: auto; /* Full width */
-                position: relative;
-                top: 0;
-                margin-top: 20px;
-                border: none;
-                background: transparent;
-                box-shadow: none;
-                padding: 0;
+                display: none; /* We use the popup cart instead */
             }
-            /* Show the mobile bar only when items exist (handled by JS) */
-            .mobile-visible { display: flex !important; }
+            
+            /* --- SHOW MOBILE BAR --- */
+            #mobile-bar {
+                display: flex !important; /* Force visible */
+            }
         }
 
         /* --- 4. MODAL (POPUP) --- */
@@ -144,9 +172,10 @@
             justify-content: center; align-items: center; z-index: 1000; 
         }
         .modal-content { 
-            background: white; padding: 30px; border-radius: 16px; 
+            background: white; padding: 25px; border-radius: 16px; 
             text-align: center; max-width: 340px; width: 90%; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.2); 
+            max-height: 80vh; overflow-y: auto; /* Allow scrolling if list is long */
         }
         .qr-placeholder { 
             width: 200px; height: 200px; background: #eee; 
@@ -173,21 +202,21 @@
 
         <div id="cart-summary">
             <h3 style="margin-top:0; color: #e91e63;">🛍️ ตะกร้าสินค้า</h3>
-            <ul id="cart-list">
+            <ul id="cart-list-desktop">
                 <li style="color: #999; text-align: center;">เลือกสินค้าฝั่งซ้ายได้เลย...</li>
             </ul>
             
             <div style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px;">
                 <div style="display: flex; justify-content: space-between;">
                     <span>จำนวน:</span>
-                    <strong id="cart-count">0 ชิ้น</strong>
+                    <strong id="cart-count-desktop">0 ชิ้น</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 1.3em; margin-top: 5px; color: #e91e63;">
                     <span>รวม:</span>
-                    <strong><span id="cart-total">0</span> บาท</strong>
+                    <strong><span id="cart-total-desktop">0</span> บาท</strong>
                 </div>
                 
-                <div id="promo-message" class="promo-text"></div>
+                <div id="promo-message-desktop" class="promo-text"></div>
                 
                 <button class="btn" style="width: 100%; margin-top: 15px; font-size: 1.1em; padding: 12px;" onclick="showCheckout()">
                     ชำระเงิน (Checkout)
@@ -196,30 +225,37 @@
         </div>
     </div>
 
-    <div id="mobile-bar" class="mobile-bar hidden">
+    <div id="mobile-bar">
         <div style="line-height: 1.2;">
-            <span style="font-size: 0.9em; color: #666;">ยอดรวมสุทธิ</span><br>
+            <span style="font-size: 0.8em; color: #666;">ยอดรวมสุทธิ</span><br>
             <strong style="font-size: 1.3em; color: #e91e63;"><span id="mobile-total">0</span> บาท</strong>
         </div>
-        <button class="btn" style="width: auto; margin: 0; padding: 10px 25px; box-shadow: 0 4px 10px rgba(233,30,99,0.3);" onclick="scrollToCart()">
+        <button class="btn" style="width: auto; margin: 0; padding: 8px 20px; box-shadow: 0 4px 10px rgba(233,30,99,0.3);" onclick="showCheckout()">
             ดูตะกร้า / ชำระเงิน
         </button>
     </div>
 
     <div id="checkout-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 style="color: #e91e63; margin-top:0;">สแกนเพื่อชำระเงิน</h2>
-            <p>ยอดชำระ: <strong><span id="pay-amount">0</span> บาท</strong></p>
+            <h2 style="color: #e91e63; margin-top:0;">สรุปรายการสั่งซื้อ</h2>
             
-            <div class="qr-placeholder">
-                <img src="https://via.placeholder.com/200x200?text=QR+Code" alt="QR Code" style="width:100%; height:100%; object-fit: contain;">
+            <ul id="cart-list-modal" style="list-style: none; padding: 0; text-align: left; margin-bottom: 15px; border-bottom: 1px dashed #ddd; padding-bottom: 10px;">
+                </ul>
+            
+            <p style="font-size: 1.2em; text-align: right;">ยอดรวม: <strong><span id="pay-amount">0</span> บาท</strong></p>
+            <div id="promo-message-modal" class="promo-text" style="margin-bottom: 15px;"></div>
+
+            <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <p style="margin:0; font-weight:bold; color: #666;">สแกน QR เพื่อชำระเงิน</p>
+                <div class="qr-placeholder" style="width: 150px; height: 150px; margin: 10px auto;">
+                    <img src="https://via.placeholder.com/150x150?text=QR+Code" alt="QR Code" style="width:100%; height:100%; object-fit: contain;">
+                </div>
             </div>
             
-            <p style="font-size: 0.9em; color: #666; margin-bottom: 5px;">กรุณาโอนเงินและระบุชื่อแจ้งโอน:</p>
-            <input type="text" id="customer-name" placeholder="ชื่อคุณลูกค้า (Your Name)">
+            <input type="text" id="customer-name" placeholder="ระบุชื่อผู้โอน (Your Name)">
             
-            <button class="btn" onclick="submitOrder()">ยืนยันการแจ้งโอน</button>
-            <button class="btn" style="background: white; color: #888; border: 1px solid #ddd; margin-top: 10px;" onclick="closeModal()">ยกเลิก</button>
+            <button class="btn" onclick="submitOrder()" style="font-size: 1.1em; padding: 12px;">ยืนยันการแจ้งโอน</button>
+            <button class="btn" style="background: white; color: #888; border: 1px solid #ddd; margin-top: 10px;" onclick="closeModal()">กลับ / แก้ไข</button>
         </div>
     </div>
 
@@ -278,7 +314,6 @@
             const product = products.find(p => p.id === id);
             cart.push(product);
             renderCart();
-            // Optional: Small vibration on phone
             if (navigator.vibrate) navigator.vibrate(50);
         }
 
@@ -288,35 +323,39 @@
         }
 
         function renderCart() {
-            const list = document.getElementById('cart-list');
-            const totalSpan = document.getElementById('cart-total');
-            const countSpan = document.getElementById('cart-count');
-            const promoMsg = document.getElementById('promo-message');
-            const mobileBar = document.getElementById('mobile-bar');
+            // We need to update both Desktop and Modal views
+            const listDesktop = document.getElementById('cart-list-desktop');
+            const listModal = document.getElementById('cart-list-modal'); // For mobile summary
             
-            list.innerHTML = '';
+            const totalSpanDesktop = document.getElementById('cart-total-desktop');
+            const countSpanDesktop = document.getElementById('cart-count-desktop');
+            const promoMsgDesktop = document.getElementById('promo-message-desktop');
             
-            // Handle Empty State
+            // Clear Lists
+            listDesktop.innerHTML = '';
+            listModal.innerHTML = '';
+            
             if (cart.length === 0) {
-                list.innerHTML = '<li style="color: #999; text-align: center;">ยังไม่มีสินค้า...</li>';
-                totalSpan.innerText = '0';
-                countSpan.innerText = '0 ชิ้น';
-                promoMsg.style.display = 'none';
-                mobileBar.classList.remove('mobile-visible'); // Hide mobile bar
-                return;
+                listDesktop.innerHTML = '<li style="color: #999; text-align: center;">ยังไม่มีสินค้า...</li>';
+                listModal.innerHTML = '<li style="color: #999; text-align: center;">ตะกร้าว่างเปล่า</li>';
             }
 
             // Render Items
             cart.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
+                const itemHTML = `
                     <span>${item.thai}</span>
                     <button class="btn-remove" onclick="removeFromCart(${index})">x</button>
                 `;
-                list.appendChild(li);
+                
+                const liD = document.createElement('li'); liD.innerHTML = itemHTML;
+                listDesktop.appendChild(liD);
+                
+                const liM = document.createElement('li'); liM.innerHTML = itemHTML;
+                liM.style.display = "flex"; liM.style.justifyContent = "space-between"; liM.style.padding = "5px 0"; liM.style.borderBottom = "1px solid #eee";
+                listModal.appendChild(liM);
             });
 
-            // Calculate Price (Promotion Logic)
+            // Calculate Price
             const count = cart.length;
             const setsOfThree = Math.floor(count / 3);
             const remainder = count % 3;
@@ -326,31 +365,36 @@
             const savings = normalPrice - total;
 
             // Update UI
-            countSpan.innerText = count + " ชิ้น";
-            totalSpan.innerText = total;
+            if(countSpanDesktop) countSpanDesktop.innerText = count + " ชิ้น";
+            if(totalSpanDesktop) totalSpanDesktop.innerText = total;
             
             // Update Mobile Bar
             document.getElementById('mobile-total').innerText = total;
-            mobileBar.classList.add('mobile-visible'); // Show mobile bar
 
-            // Show Savings Message
+            // Promo Text Logic
+            let promoText = "";
             if (savings > 0) {
-                promoMsg.style.display = 'block';
-                promoMsg.innerHTML = `✨ โปรโมชั่นทำงาน! คุณประหยัด ${savings} บาท`;
+                promoText = `✨ ประหยัด ${savings} บาท`;
+                promoMsgDesktop.style.display = 'block';
+                promoMsgDesktop.innerText = promoText;
+                
+                document.getElementById('promo-message-modal').style.display = 'block';
+                document.getElementById('promo-message-modal').innerText = promoText;
             } else {
-                promoMsg.style.display = 'none';
+                promoMsgDesktop.style.display = 'none';
+                document.getElementById('promo-message-modal').style.display = 'none';
             }
         }
 
-        // --- 5. INTERACTION & PAYMENT ---
-        function scrollToCart() {
-            // Scroll smoothly to the cart section
-            document.getElementById('cart-summary').scrollIntoView({ behavior: 'smooth' });
-        }
-
+        // --- 5. CHECKOUT ---
         function showCheckout() {
-            if (cart.length === 0) { alert("กรุณาเลือกสินค้าก่อนชำระเงินครับ"); return; }
-            document.getElementById('pay-amount').innerText = document.getElementById('cart-total').innerText;
+            if (cart.length === 0) { alert("กรุณาเลือกสินค้าก่อนครับ"); return; }
+            
+            // Sync total price to modal
+            // We use the mobile total because it's always up to date
+            const currentTotal = document.getElementById('mobile-total').innerText;
+            document.getElementById('pay-amount').innerText = currentTotal;
+            
             document.getElementById('checkout-modal').classList.remove('hidden');
         }
 
@@ -368,10 +412,13 @@
             submitBtn.innerText = "กำลังส่งข้อมูล...";
             submitBtn.disabled = true;
 
+            // Use the calculated total from our variables
+            const currentTotal = document.getElementById('mobile-total').innerText;
+
             const orderData = {
                 customer: name,
                 items: cart.map(i => i.thai).join(", "),
-                total: document.getElementById('cart-total').innerText
+                total: currentTotal
             };
 
             fetch(SCRIPT_URL, {
