@@ -1,134 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Macaron Shop</title>
+    <title>ร้านมาการอง (Macaron Shop)</title>
     <style>
         /* --- LAYOUT & DESIGN --- */
-        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #fff0f5; }
-        h1 { color: #880e4f; text-align: center; }
+        body { font-family: 'Sarabun', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #fff0f5; color: #333; }
+        h1 { color: #880e4f; text-align: center; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
         
         /* Product Grid */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 20px; }
-        .product-card { background: white; border: 1px solid #f8bbd0; padding: 15px; text-align: center; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .product-img { width: 100%; height: 120px; background-color: #fce4ec; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
+        .product-card { background: white; border: 1px solid #f8bbd0; padding: 15px; text-align: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 140px; background-color: #fce4ec; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        
+        /* Text Styling */
+        .name-en { font-weight: bold; font-size: 1em; color: #333; margin: 5px 0 2px 0; }
+        .name-th { color: #888; font-size: 0.9em; margin-bottom: 10px; }
+        .price-tag { color: #e91e63; font-weight: bold; font-size: 1.1em; }
         
         /* Buttons */
-        .btn { background: #e91e63; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 20px; margin-top: 5px; font-weight: bold; transition: background 0.2s; }
+        .btn { background: #e91e63; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 20px; margin-top: 5px; font-weight: bold; transition: background 0.2s; width: 100%; }
         .btn:hover { background: #c2185b; }
-        .btn-remove { background: #bdbdbd; font-size: 0.8em; padding: 5px 10px; border-radius: 5px; margin-left: 10px; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-remove { background: #bdbdbd; color: white; border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px; font-size: 0.8em; }
         
         /* Shopping Bag */
-        #cart-summary { margin-top: 40px; padding: 20px; background: white; border-radius: 12px; border: 1px solid #f8bbd0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        #cart-summary { margin-top: 40px; padding: 25px; background: white; border-radius: 16px; border: 1px solid #f8bbd0; box-shadow: 0 -2px 20px rgba(0,0,0,0.05); }
         #cart-list { list-style: none; padding: 0; }
-        #cart-list li { padding: 8px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* --- MODAL (POPUP) STYLES --- */
-        .modal { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.6); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            z-index: 1000; /* Ensures it sits on top */
-        }
-        
-        .modal-content { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 16px; 
-            text-align: center; 
-            max-width: 320px; 
-            width: 90%; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-        }
-        
-        .qr-placeholder { 
-            width: 200px; 
-            height: 200px; 
-            background: #eee; 
-            margin: 15px auto; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: #888;
-        }
+        #cart-list li { padding: 10px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
+        .promo-text { color: #4caf50; font-size: 0.9em; font-weight: bold; margin-top: 5px; }
 
-        /* --- IMPORTANT: This controls visibility --- */
+        /* --- MODAL (POPUP) --- */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 16px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .qr-placeholder { width: 200px; height: 200px; background: #eee; margin: 15px auto; display: flex; align-items: center; justify-content: center; }
         .hidden { display: none !important; }
+        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <h1>🍬 Premium Macarons</h1>
+    <h1>ร้านมาการอง Copé</h1>
+    <p class="subtitle">Taste le France | ชิ้นละ 35.- | โปรโมชั่น 3 ชิ้น 100.-</p>
 
     <div class="product-grid" id="product-container">
         </div>
 
     <div id="cart-summary">
-        <h3>🛍️ Your Shopping Bag</h3>
+        <h3>🛍️ ตะกร้าสินค้าของฉัน</h3>
         <ul id="cart-list">
-            <li style="color: #999;">Your bag is empty...</li>
+            <li style="color: #999;">ยังไม่มีสินค้าในตะกร้า...</li>
         </ul>
-        <p style="font-size: 1.2em; text-align: right;">Total: <strong><span id="cart-total">0</span> THB</strong></p>
-        <div style="text-align: right;">
-            <button class="btn" onclick="showCheckout()">Proceed to Payment</button>
+        
+        <div style="text-align: right; margin-top: 20px;">
+            <p>จำนวน: <strong id="cart-count">0</strong> ชิ้น</p>
+            <p style="font-size: 1.4em; color: #e91e63;">รวมทั้งสิ้น: <strong><span id="cart-total">0</span> บาท</strong></p>
+            <p id="promo-message" class="promo-text"></p>
+            <button class="btn" style="width: auto; padding-left: 30px; padding-right: 30px;" onclick="showCheckout()">ชำระเงิน (Checkout)</button>
         </div>
     </div>
 
     <div id="checkout-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 style="color: #e91e63;">Scan to Pay</h2>
-            <p>Total: <strong><span id="pay-amount">0</span> THB</strong></p>
+            <h2 style="color: #e91e63;">สแกนเพื่อชำระเงิน</h2>
+            <p>ยอดชำระ: <strong><span id="pay-amount">0</span> บาท</strong></p>
             
             <div class="qr-placeholder">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ExamplePayment" alt="QR Code" style="width:100%; height:100%;">
+                 <img src="https://via.placeholder.com/200x200?text=QR+Code" alt="QR Code" style="width:100%; height:100%; object-fit: contain;">
             </div>
             
-            <p style="font-size: 0.9em; color: #666;">Please transfer and enter your name:</p>
-            <input type="text" id="customer-name" placeholder="Your Name" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px;">
+            <p style="font-size: 0.9em; color: #666; margin-bottom: 5px;">กรุณาโอนเงินและระบุชื่อแจ้งโอน:</p>
+            <input type="text" id="customer-name" placeholder="ชื่อคุณลูกค้า (Your Name)">
             
-            <button class="btn" onclick="submitOrder()">Confirm Payment</button>
-            <br><br>
-            <button class="btn-remove" style="background: white; color: #888; border: 1px solid #ddd;" onclick="closeModal()">Cancel</button>
+            <button class="btn" onclick="submitOrder()">ยืนยันการแจ้งโอน</button>
+            <button class="btn" style="background: white; color: #888; border: 1px solid #ddd; margin-top: 10px;" onclick="closeModal()">ยกเลิก</button>
         </div>
     </div>
 
     <script>
-        // --- DATA ---
+        // --- DATA FROM IMAGE ---
+        // I have prepared the filenames assuming you name them simply (e.g. earlgrey.jpg)
         const products = [
-            { 
-                id: 1, 
-                name: "Earl Grey Honey", 
-                price: 45,
-                image: "images/earlgreyhoney.jpg" 
-            },
-            { 
-                id: 2, 
-                name: "Dark Chocolate", 
-                price: 45, 
-                image: "images/choco.jpg" 
-            },
-            { 
-                id: 3, 
-                name: "Matcha Green Tea", 
-                price: 50, 
-                image: "images/matcha.jpg" 
-            },
-            { 
-                id: 4, 
-                name: "Salted Caramel", 
-                price: 50, 
-                image: "images/caramel.jpg" 
-            }
+            // Row 1
+            { id: 1, name: "EarlGrey-Honey", thai: "เอิร์ลเกรย์น้ำผึ้ง", img: "images/earlgrey.jpg" },
+            { id: 2, name: "Strawberry", thai: "สตรอว์เบอร์รี่", img: "images/strawberry.jpg" },
+            { id: 3, name: "Banana Cheese", thai: "กล้วยชีส", img: "images/bananacheese.jpg" },
+            { id: 4, name: "Nescafe Gold", thai: "เนสกาแฟโกลด์", img: "images/nescafe.jpg" },
+            { id: 5, name: "Dark Chocolate", thai: "ช็อคโกแลตดำ", img: "images/darkchoc.jpg" },
+            // Row 2
+            { id: 6, name: "Blackberry", thai: "แบล็คเบอร์รี่", img: "images/blackberry.jpg" },
+            { id: 7, name: "Raspberry", thai: "ราสเบอร์รี่", img: "images/raspberry.jpg" },
+            { id: 8, name: "Lemon", thai: "เลม่อน", img: "images/lemon.jpg" },
+            { id: 9, name: "Vanilla", thai: "วานิลลา", img: "images/vanilla.jpg" },
+            { id: 10, name: "Rose-Lychee", thai: "กุหลาบลิ้นจี่", img: "images/roselychee.jpg" },
+            // Row 3
+            { id: 11, name: "Thai Tea", thai: "ชาไทย", img: "images/thaitea.jpg" },
+            { id: 12, name: "Passion", thai: "เสาวรส", img: "images/passion.jpg" },
+            { id: 13, name: "Apple", thai: "แอปเปิ้ล", img: "images/apple.jpg" },
+            { id: 14, name: "Mocha", thai: "มอคค่า", img: "images/mocha.jpg" },
+            { id: 15, name: "Red Velvet", thai: "เรดเวลเวท", img: "images/redvelvet.jpg" },
+            // Row 4
+            { id: 16, name: "Mixberry", thai: "มิกซ์เบอร์รี่", img: "images/mixberry.jpg" },
+            { id: 17, name: "Durian", thai: "ทุเรียน", img: "images/durian.jpg" },
+            { id: 18, name: "Limeguat", thai: "ส้มจี๊ด", img: "images/limeguat.jpg" },
+            { id: 19, name: "White Choc-Cranberry", thai: "ช็อคขาวแครนเบอร์รี่", img: "images/whitechoc.jpg" },
+            { id: 20, name: "Green Tea", thai: "ชาเขียว", img: "images/greentea.jpg" },
+            // Row 5
+            { id: 21, name: "Strawberry-Cheese", thai: "สตรอว์เบอร์รี่ชีส", img: "images/strawberrycheese.jpg" },
+            { id: 22, name: "Milk Chocolate", thai: "ช็อคโกแลตนม", img: "images/milkchoc.jpg" }
         ];
 
         let cart = [];
+        const PRICE_PER_PIECE = 35;
+        const PROMO_PRICE_3 = 100;
 
         // --- INIT ---
         const container = document.getElementById('product-container');
@@ -136,14 +124,12 @@
         products.forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card';
-            
-            // WE CHANGED THIS PART:
-            // We now use an <img> tag pointing to p.image
             card.innerHTML = `
-                <img src="${p.image}" class="product-img" alt="${p.name}">
-                <h3>${p.name}</h3>
-                <p style="color: #e91e63; font-weight: bold;">${p.price} THB</p>
-                <button class="btn" onclick="addToCart(${p.id})">Add to Bag</button>
+                <img src="${p.img}" class="product-img" alt="${p.name}">
+                <div class="name-en">${p.name}</div>
+                <div class="name-th">${p.thai}</div>
+                <div class="price-tag">${PRICE_PER_PIECE}.-</div>
+                <button class="btn" onclick="addToCart(${p.id})">เพิ่มลงตะกร้า</button>
             `;
             container.appendChild(card);
         });
@@ -163,29 +149,50 @@
         function renderCart() {
             const list = document.getElementById('cart-list');
             const totalSpan = document.getElementById('cart-total');
+            const countSpan = document.getElementById('cart-count');
+            const promoMsg = document.getElementById('promo-message');
+            
             list.innerHTML = '';
             
             if (cart.length === 0) {
-                list.innerHTML = '<li style="color: #999;">Your bag is empty...</li>';
+                list.innerHTML = '<li style="color: #999;">ยังไม่มีสินค้าในตะกร้า...</li>';
                 totalSpan.innerText = '0';
+                countSpan.innerText = '0';
+                promoMsg.innerText = '';
                 return;
             }
 
-            let total = 0;
+            // Render List
             cart.forEach((item, index) => {
-                total += item.price;
                 const li = document.createElement('li');
                 li.innerHTML = `
-                    <span>${item.name}</span>
-                    <span>${item.price} THB <button class="btn-remove" onclick="removeFromCart(${index})">x</button></span>
+                    <span>${item.thai} <span style="font-size:0.8em; color:#999;">(${item.name})</span></span>
+                    <button class="btn-remove" onclick="removeFromCart(${index})">ลบ</button>
                 `;
                 list.appendChild(li);
             });
+
+            // --- PROMOTION CALCULATION ---
+            const count = cart.length;
+            const setsOfThree = Math.floor(count / 3);
+            const remainder = count % 3;
+            
+            const total = (setsOfThree * PROMO_PRICE_3) + (remainder * PRICE_PER_PIECE);
+            const normalPrice = count * PRICE_PER_PIECE;
+            const savings = normalPrice - total;
+
+            countSpan.innerText = count;
             totalSpan.innerText = total;
+
+            if (savings > 0) {
+                promoMsg.innerHTML = `✨ โปรโมชั่น 3 ชิ้น 100.- (คุณประหยัดไป ${savings} บาท)`;
+            } else {
+                promoMsg.innerText = "";
+            }
         }
 
         function showCheckout() {
-            if (cart.length === 0) { alert("Please add items to your bag first!"); return; }
+            if (cart.length === 0) { alert("กรุณาเลือกสินค้าก่อนชำระเงินครับ"); return; }
             document.getElementById('pay-amount').innerText = document.getElementById('cart-total').innerText;
             document.getElementById('checkout-modal').classList.remove('hidden');
         }
@@ -199,46 +206,41 @@
             const nameField = document.getElementById('customer-name');
             const name = nameField.value;
             
-            if (!name) { alert("Please enter your name to verify payment."); return; }
+            if (!name) { alert("กรุณาระบุชื่อผู้โอนเงิน เพื่อให้เราตรวจสอบยอดเงินครับ"); return; }
 
             const submitBtn = document.querySelector('#checkout-modal .btn');
-            submitBtn.innerText = "Sending...";
+            submitBtn.innerText = "กำลังส่งข้อมูล...";
             submitBtn.disabled = true;
 
             const orderData = {
                 customer: name,
-                items: cart.map(i => i.name).join(", "),
+                items: cart.map(i => i.thai).join(", "),
                 total: document.getElementById('cart-total').innerText
             };
 
-            // YOUR SPECIFIC URL IS HERE:
+            // YOUR GOOGLE SCRIPT URL
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwsy6TtiRrc88oT4_S6WB_2ONb61tmIOxkgge54S9tpj4IzVJoBLImW8BXRST2wycBRJQ/exec'; 
 
             fetch(scriptURL, {
                 method: 'POST',
-                mode: 'no-cors', // Standard setting for Google Apps Script from external sites
+                mode: 'no-cors',
                 body: JSON.stringify(orderData),
                 headers: { 'Content-Type': 'application/json' }
             }).then(response => {
-                // Because of 'no-cors', we assume success if the request finished
-                alert("Thank you, " + name + "! We received your order.");
-                
-                // Reset everything
+                alert("ขอบคุณครับ! เราได้รับออเดอร์ของคุณ " + name + " เรียบร้อยแล้ว");
                 cart = [];
                 renderCart();
                 nameField.value = "";
                 closeModal();
-                submitBtn.innerText = "Confirm Payment";
+                submitBtn.innerText = "ยืนยันการแจ้งโอน";
                 submitBtn.disabled = false;
-                
             }).catch(error => {
                 console.error('Error!', error.message);
-                alert("There was an error sending the order. Please try again.");
-                submitBtn.innerText = "Confirm Payment";
+                alert("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+                submitBtn.innerText = "ยืนยันการแจ้งโอน";
                 submitBtn.disabled = false;
             });
         }
     </script>
 </body>
 </html>
-
